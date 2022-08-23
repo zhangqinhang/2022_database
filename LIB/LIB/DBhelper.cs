@@ -8,12 +8,10 @@ using System.Collections.Generic;
 using Oracle.ManagedDataAccess.Client;
 /// <summary>
 /// 数据访问抽象基础类
-/// Copyright (C) 2004-2008 LiTianPing
-/// All rights reserved
 /// </summary>
 public static class DbHelperOra
 {
-    //数据库连接字符串(web.config来配置)，可以动态更改connectionString支持多数据库.        
+    //数据库连接字符串(web.config来配置)，可以动态更改connectionString支持多数据库.其中，DBA Privilege是个很重要的部分，可以满足用SYS连接数据库        
     public static string connectionString = "User ID=SYS;Password=Abc12345;DBA Privilege=SYSDBA;Data Source=(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST=139.196.161.12)(PORT=1521)))(CONNECT_DATA=(SERVICE_NAME=Library)))";
 
     #region 公用方法
