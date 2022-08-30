@@ -21,7 +21,7 @@ namespace LIB.Controllers
         }
 
         [HttpPost]
-        public bool INSERTBOOKLOAN(String bookid, String loan_time, String loan_people_id)
+        public bool INSERTBOOKLOAN(String bookid,String loan_people_id)
         {
 
             string id = bookid;
@@ -30,18 +30,18 @@ namespace LIB.Controllers
             if (!judge1)
             {
 
-                var strinsertinto = "insert into MY_LOAN_BOOKS (BOOK_ID,LOAN_TIME,LOAN_PEOPLE_ID) " +
+                var strinsertinto = "insert into MY_LOAN_BOOKS (BOOK_ID,BORROW_TIME,LOAN_PEOPLE_ID) " +
                     "values (:bookid,to_date(:loan_time,'yyyy-mm-dd'),:userid)";
                 List<OracleParameter> oracleParameters = new List<OracleParameter>();
                 oracleParameters.Add(new OracleParameter(":bookid", bookid));
-                oracleParameters.Add(new OracleParameter(":loan_time", loan_time));
+                oracleParameters.Add(new OracleParameter(":loan_time", DateTime.Now.ToString("yyyy-MM-dd")));
                 oracleParameters.Add(new OracleParameter(":userid", loan_people_id));
 
                 DbHelperOra.ExecuteSql(strinsertinto, oracleParameters.ToArray());
                 var sqlstr1 = "update MY_BOOKS set STATE='已经借出' where BOOK_ID=" + bookid;
                 DbHelperOra.ExecuteSql(sqlstr1);
 
-                var sqlstr2 = "update MY_LOAN_BOOKS set RETURN_TIME=LOAN_TIME+30 where BOOK_ID=" + bookid;
+                var sqlstr2 = "update MY_LOAN_BOOKS set RETURN_TIME=BORROW_TIME+30 where BOOK_ID=" + bookid;
                 DbHelperOra.ExecuteSql(sqlstr2);
                 return true;
             }
@@ -54,6 +54,16 @@ namespace LIB.Controllers
         {
             string result = "";
             var datatable = DbHelperOra.Query("select * from MY_LOAN_BOOKS");
+            string JsonString = string.Empty;
+            JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
+            return JsonString;
+        }
+
+        [HttpPost]
+        public string get_loan_number_by_userid(string userid)
+        {
+            string result = "";
+            var datatable = DbHelperOra.Query("select count(reader_id) from my_reader_borrow where reader_id=" + userid);
             string JsonString = string.Empty;
             JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
             return JsonString;

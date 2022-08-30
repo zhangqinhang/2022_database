@@ -14,12 +14,13 @@ namespace LIB.Controllers
         {
             ////string sqlstr = "select * from MY_FORUM where USER_ID=" + userid;
             var data = DbHelperOra.Query("select * from  MY_FORUM");
-            int id = data.Tables[0].Rows.Count + 1;
+            int id = DbHelperOra.GetMaxID("CONTENTS_ID", "MY_FORUM")+1;
             ////var id = DbHelperOra.Query("select * from MY_SEAT_APPOINTMENT");
             ////string JsonString = string.Empty;
             ////JsonString = JsonConvert.SerializeObject(id.Tables[0]);
             ////return JsonString;
-            var strinsertinto = "insert into MY_FORUM (CONTENTS_ID,FORUM_CONTENT,USER_ID,TOPIC,FORUM_BACK,COMMENTS_TIME) values (:contentid,:content,:userid,:topic,:forumbavk,2022-08-28)";
+            Console.WriteLine(id);
+            var strinsertinto = "insert into MY_FORUM (CONTENTS_ID,FORUM_CONTENT,USER_ID,TOPIC,FORUM_BACK,COMMENTS_TIME) values (:contentid,:content,:userid,:topic,:forumbavk,:time)";
             List<OracleParameter> oracleParameters = new List<OracleParameter>();
             oracleParameters.Add(new OracleParameter(":contentid", id.ToString()));
             //oracleParameters.Add(new OracleParameter(":rseatid", (1).ToString()));
@@ -27,6 +28,7 @@ namespace LIB.Controllers
             oracleParameters.Add(new OracleParameter(":userid", userid));
             oracleParameters.Add(new OracleParameter(":topic", topic));
             oracleParameters.Add(new OracleParameter(":forumbavk", userid));
+            oracleParameters.Add(new OracleParameter(":time", DateTime.Now.ToString("yyyy-MM-dd")));
             DbHelperOra.ExecuteSql(strinsertinto, oracleParameters.ToArray());
             return true;
         }
@@ -54,6 +56,24 @@ namespace LIB.Controllers
             JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
             return JsonString;
 
+        }
+
+        [HttpPost]
+        public ActionResult deleteForum(String commentid)
+        {
+
+            if (String.IsNullOrEmpty(commentid))
+            {
+                return Ok();
+            }
+            var strinsertinto = "delete from MY_FORUM where CONTENTS_ID=:id";
+            List<OracleParameter> oracleParameters = new List<OracleParameter>();
+            oracleParameters.Add(new OracleParameter(":id", commentid));
+            var isok = DbHelperOra.ExecuteSql(strinsertinto, oracleParameters.ToArray());
+            Console.WriteLine(isok);
+
+
+            return Ok();
         }
     }
 }
