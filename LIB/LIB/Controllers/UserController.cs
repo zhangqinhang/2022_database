@@ -1,12 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
+using System.Reflection;
+using Newtonsoft.Json;
+using Microsoft.VisualBasic;
 
 namespace LIB.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
     public class UserController : Controller
+
     {
         [HttpPost]
         public ActionResult postest(String username, String password)
@@ -210,7 +214,7 @@ namespace LIB.Controllers
             oracleParameters.Add(new OracleParameter(":id", userid));
             oracleParameters.Add(new OracleParameter(":password", password));
             var isok = DbHelperOra.ExecuteSql(strinsertinto, oracleParameters.ToArray());
-            Console.WriteLine(password);
+            Console.WriteLine(isok);
 
             return true;
             //}
@@ -219,36 +223,15 @@ namespace LIB.Controllers
         }
         //这个用来实现修改密码
         [HttpPost]
-        public ActionResult updatepassword(String userid, String username, String password, String passwordupdated)
+        public bool updatepassword(String userid, String password, String passwordupdated)
         {
-            if (String.IsNullOrEmpty(username))
-            {
-                return Ok();
-            }
-            if (String.IsNullOrEmpty(userid))
-            {
-                return Ok();
-            }
-            if (String.IsNullOrEmpty(password))
-            {
-                return Ok();
-            }
-            if (String.IsNullOrEmpty(passwordupdated))
-            {
-                return Ok();
-            }
-            var strinsertinto = "update MY_USER set PASSWORD=:passwordupdated where USER_ID=:id and PASSWORD=:password";
-            List<OracleParameter> oracleParameters = new List<OracleParameter>();
 
-
-            oracleParameters.Add(new OracleParameter(":name", username));
-            oracleParameters.Add(new OracleParameter(":id", userid));
-            oracleParameters.Add(new OracleParameter(":password", password));
-            oracleParameters.Add(new OracleParameter(":passwordupdated", passwordupdated));
-            var isok = DbHelperOra.ExecuteSql(strinsertinto, oracleParameters.ToArray());
-            Console.WriteLine(isok);
-
-            return Ok();
+            string sqlstr = "update MY_USER set PASSWORD='" + passwordupdated + "' where USER_ID='" + userid + "' and PASSWORD='" + password + "'";
+            var isok = DbHelperOra.ExecuteSql(sqlstr);
+            if (isok == 1)
+                return true;
+            else
+                return false;
         }
         //这个用来实现删除
         [HttpPost]
@@ -272,14 +255,13 @@ namespace LIB.Controllers
 
         //这个用来实现查询
         [HttpPost]
-        public ActionResult query()
+        public string query()
         {
             var datatable = DbHelperOra.Query("select * from MY_USER");
-            foreach (DataRow item in datatable.Tables[0].Rows)
-            {
-                Console.WriteLine(item["USER_NAME"].ToString() + "___" + item["USER_ID"].ToString() + "___" + item["PASSWORD"].ToString());
-            }
-            return Ok();
+            string JsonString = string.Empty;
+            JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
+            return JsonString;
+
         }
 
         //这个用来实现查询
@@ -288,12 +270,10 @@ namespace LIB.Controllers
         {
             string result="";
             var datatable = DbHelperOra.Query("select * from MY_USER");
-            foreach (DataRow item in datatable.Tables[0].Rows)
-            {
-                Console.WriteLine(item["USER_NAME"].ToString() + "___" + item["USER_ID"].ToString());
-                result += item["USER_NAME"].ToString() + "___" + item["USER_ID"].ToString()+",";
-            }
-            return result;
+            string JsonString = string.Empty;
+            JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
+            return JsonString;
+
         }
 
         //这个用来实现查询
@@ -301,14 +281,29 @@ namespace LIB.Controllers
         public string getlib()
         {
             string result = "";
-            var datatable = DbHelperOra.Query("select * from MY_USER");
-            foreach (DataRow item in datatable.Tables[0].Rows)
-            {
-                Console.WriteLine(item["USER_NAME"].ToString() + "___" + item["USER_ID"].ToString());
-                result += item["USER_NAME"].ToString() + "___" + item["USER_ID"].ToString() + ",";
-            }
-            return result;
+            DataSet datatable = new DataSet();
+            datatable = DbHelperOra.Query("select * from MY_USER");
+
+            //foreach (DataRow item in datatable.Tables[0].Rows)
+            //{
+            //    Console.WriteLine(item["USER_NAME"].ToString() + "___" + item["USER_ID"].ToString());
+            //    result += item["USER_NAME"].ToString() + "___" + item["USER_ID"].ToString() + ",";
+            //}
+            //string jsonString = "{";
+            //foreach (DataRow item in datatable.Tables[0].Rows)
+            //{
+            //    jsonString += "\"" + item.RowName + "\":" + Json(table) + ",";
+            //}
+            //jsonString = jsonString.TrimEnd(',');
+
+            //return jsonString + "}";
+            string JsonString = string.Empty;
+            JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
+            return JsonString;
+
         }
+
+
 
     }
 }

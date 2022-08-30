@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
 
@@ -64,11 +65,9 @@ namespace LIB.Controllers
         public string query()
         {
             var datatable = DbHelperOra.Query("select * from MY_BOOKS");
-            foreach (DataRow item in datatable.Tables[0].Rows)
-            {
-                Console.WriteLine(item["BOOK_NAME"].ToString() + "___" + item["ISBN"].ToString() + "___" + item["BOOK_ID"].ToString());
-            }
-            return datatable.Tables[0].Rows.ToString();
+            string JsonString = string.Empty;
+            JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
+            return JsonString;
         }
 
         [HttpPost]
@@ -77,12 +76,22 @@ namespace LIB.Controllers
             string result = "";
             string sqlstr = "select * from MY_BOOKS";
             var datatable = DbHelperOra.Query(sqlstr);
-            foreach (DataRow item in datatable.Tables[0].Rows)
-            {
-                Console.WriteLine(item["BOOK_NAME"].ToString() + "___" + item["ISBN"].ToString() + "___" + item["BOOK_ID"].ToString());
-                result += item["BOOK_NAME"].ToString() + "___" + item["ISBN"].ToString() + "___" + item["BOOK_ID"].ToString() + ",";
-            }
-            return result;
+            string JsonString = string.Empty;
+            JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
+            return JsonString;
         }
+
+        [HttpPost]
+        public string querybookandsearch(String searchstr)
+        {
+            string result = "";
+            string sqlstr = "select * from MY_BOOKINFO where BOOK_NAME like '%"+searchstr+"%'";
+            var datatable = DbHelperOra.Query(sqlstr);
+            string JsonString = string.Empty;
+            JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
+            return JsonString;
+        }
+
+
     }
 }
