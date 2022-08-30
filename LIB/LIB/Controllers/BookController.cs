@@ -80,5 +80,18 @@ namespace LIB.Controllers
             JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
             return JsonString;
         }
+
+        [HttpPost]
+        public string querybookandsearch(String searchstr)
+        {
+            string result = "";
+            string sqlstr = "select * from MY_BOOKINFO where BOOK_NAME like '%"+searchstr+"%'";
+            var datatable = DbHelperOra.Query(sqlstr);
+            string JsonString = string.Empty;
+            JsonString = JsonConvert.SerializeObject(datatable.Tables[0]);
+            return JsonString;
+        }
+
+
     }
 }
